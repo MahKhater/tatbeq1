@@ -337,6 +337,32 @@ def quiz_step():
     questions = session.get('questions', [])
     current_index = session.get('current_index', 0)
     level = session.get('level', 'متوسط')
+    # --- أضف الكود هنا ---
+    if questions and current_index < len(questions):
+        question = questions[current_index]
+        if 'options' not in question:
+            correct_ans = question.get('answer', '').strip()
+            if question.get('id', 0) % 2 == 0:
+                question['options'] = ["صح", "خطأ"]
+            else:
+                import random
+                dummy_pool = ["صفر", "١", "٢", "٦", "١٢", "١٨", "٩٠ ْ", "١٨٠ ْ", "غير ذلك"]
+                opts = [correct_ans]
+                for item in dummy_pool:
+                    if item != correct_ans and len(opts) < 4:
+                        opts.append(item)
+                while len(opts) < 4:
+                    opts.append("خيار إضافي")
+                random.shuffle(opts)
+                question['options'] = opts
+    # ---------------------
+
+    if not questions:
+        return redirect(url_for('index'))
+def quiz_step():
+    questions = session.get('questions', [])
+    current_index = session.get('current_index', 0)
+    level = session.get('level', 'متوسط')
    
     if not questions:
         return redirect(url_for('index'))
@@ -502,7 +528,7 @@ QUIZ_TEMPLATE = """
             <span style="font-size: 14px; color: #555;">السؤال: <strong style="color: #114b3e;">{{ current_num }} من {{ total_questions }}</strong></span>
         </div>
 
-        <h2>اختبار الدرس الأول الشامل</h2>
+        <h2>اختبار الدرس الأول مادة الرياضيات التطبيقية 2 ثانوي أزهر</h2>
        
         <form method="POST" action="{{ url_for('quiz_step') }}" id="quiz-form">
             <div class="question-box">
