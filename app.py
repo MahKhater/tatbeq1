@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.secret_key = 'ser_el_tafouk_secret_key' # مفتاح الجلسة لتخزين الأسئلة والإجابات
 
 QUESTIONS_DB = {
-    "level_1": [
+    "مبتدئ": [
         {"id": 1, "question": "القوة هي تأثير أحد الأجسام الطبيعية على جسم طبيعي آخر بالدفع أو...", "answer": "الجذب / الضغط / التنافر - جميع ما سبق"},
         {"id": 2, "question": "الأجسام الطبيعية تنقسم إلى أجسام جاسئة متماسكة وأجسام...", "answer": "قابلة للتشكل"},
         {"id": 3, "question": "الجسم الجاسئ هو الذي لا يتغير شكله مهما كانت القوى المؤثرة عليه مثل...", "answer": "المعادن الصلبة والصخور"},
@@ -502,7 +502,7 @@ QUIZ_TEMPLATE = """
             <span style="font-size: 14px; color: #555;">السؤال: <strong style="color: #114b3e;">{{ current_num }} من {{ total_questions }}</strong></span>
         </div>
 
-        <h2>اختبار الدرس الأول مادة الرياضيات التطبيقية 2 ثانوي ازهر </h2>
+        <h2>اختبار الدرس الأول الشامل</h2>
        
         <form method="POST" action="{{ url_for('quiz_step') }}" id="quiz-form">
             <div class="question-box">
@@ -578,9 +578,6 @@ RESULT_TEMPLATE = """
 </body>
 </html>
 """
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
