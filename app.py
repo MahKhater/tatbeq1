@@ -372,10 +372,10 @@ def quiz_step():
         
         user_answers = session.get('user_answers', {})
         user_answers[str(current_index)] = {
-            "prompt": questions[current_index]['prompt'],
+            "question": questions[current_index]['question'],
             "user_ans": ans if ans else "لم تتم الإجابة",
-            "correct_ans": questions[current_index]['correct_answer'],
-            "is_correct": (ans == questions[current_index]['correct_answer'])
+            "correct_ans": questions[current_index]['answer'],
+            "is_correct": (ans == questions[current_index]['answer'])
         }
         session['user_answers'] = user_answers
        
@@ -391,7 +391,7 @@ def quiz_step():
         QUIZ_TEMPLATE,
         level=level,
         question=current_question,
-        current_num=current_index + 1,
+       current_num=current_index + 1,
         total_questions=len(questions),
         num_questions=len(questions)
     )
@@ -588,7 +588,7 @@ RESULT_TEMPLATE = """
         <div style="margin-top: 15px;">
             {% for r in results %}
                 <div class="res-item {% if r.is_correct %}correct{% else %}wrong{% endif %}">
-                    <p><strong>سؤال {{ r.id }}:</strong> {{ r.prompt }}</p>
+                    <p><strong>سؤال {{ r.id }}:</strong> {{ r.question }}</p>
                     <p style="margin: 5px 0; font-size: 14px;">إجابتك: <span style="font-weight: bold; color: {% if r.is_correct %}#2e7d32{% else %}#c62828{% endif %};">{{ r.user_ans }} {% if r.is_correct %}✅{% else %}❌{% endif %}</span></p>
                     {% if not r.is_correct %}
                         <p style="margin: 5px 0; font-size: 14px; color: #2e7d32;">الإجابة الصحيحة هي: <strong>{{ r.correct_ans }}</strong></p>
