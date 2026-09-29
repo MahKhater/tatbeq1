@@ -341,7 +341,7 @@ def quiz_step():
         question = questions[current_index]
         if question.get('id', 0) % 2 == 0:
                 question['options'] = ["صح", "خطأ"]
-            else:
+      else:
                 import random
                 dummy_pool = ["صفر", "١", "٢", "٦", "١٢", "١٨", "٩٠ ْ", "١٨٠ ْ", "غير ذلك"]
                 opts = [correct_ans]
