@@ -355,18 +355,7 @@ def quiz_step():
                     opts.append("خيار إضافي")
                 random.shuffle(opts)
                 question['options'] = opts
-    # ---------------------
-
-    if not questions:
-        return redirect(url_for('index'))
-def quiz_step():
-    questions = session.get('questions', [])
-    current_index = session.get('current_index', 0)
-    level = session.get('level', 'متوسط')
-   
-    if not questions:
-        return redirect(url_for('index'))
-       
+  
     if request.method == 'POST':
         ans = request.form.get('current_answer')
         
