@@ -331,7 +331,6 @@ def index():
         session['current_index'] = 0
         session['user_answers'] = {}
         return redirect(url_for('quiz_step'))
-
 @app.route('/quiz', methods=['GET', 'POST'])
 def quiz_step():
     questions = session.get('questions', [])
@@ -340,8 +339,6 @@ def quiz_step():
     # --- أضف الكود هنا ---
     if questions and current_index < len(questions):
         question = questions[current_index]
-        if 'options' not in question:
-            correct_ans = question.get('answer', '').strip()
             if question.get('id', 0) % 2 == 0:
                 question['options'] = ["صح", "خطأ"]
             else:
@@ -395,14 +392,14 @@ def results():
     results_list = []
    
     for idx, data in sorted(user_answers.items(), key=lambda x: int(x[0])):
-        if data['is_correct']:
+        if data.get ('is_correct', False):
             score += 1
         results_list.append({
             "id": int(idx) + 1,
-            "prompt": data['prompt'],
+            "question": data['question'],
             "user_ans": data['user_ans'],
             "correct_ans": data['correct_ans'],
-            "is_correct": data['is_correct']
+            "is_correct": data.get('is_correct' , False):
         })
        
     return render_template_string(
