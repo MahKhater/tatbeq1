@@ -4,7 +4,7 @@ from flask import Flask, render_template_string, request, redirect, url_for, ses
 app = Flask(__name__)
 app.secret_key = 'ser_el_tafouk_secret_key' # مفتاح الجلسة لتخزين الأسئلة والإجابات
 
-questions_db = {
+QUESTIONS_DB = {
     "level_1": [
         {"id": 1, "question": "القوة هي تأثير أحد الأجسام الطبيعية على جسم طبيعي آخر بالدفع أو...", "answer": "الجذب / الضغط / التنافر - جميع ما سبق"},
         {"id": 2, "question": "الأجسام الطبيعية تنقسم إلى أجسام جاسئة متماسكة وأجسام...", "answer": "قابلة للتشكل"},
@@ -313,41 +313,13 @@ questions_db = {
     ]
 }
 
-if __name__ == "__main__":
-    print("تم تحميل قاعدة بيانات الـ ٣٠٠ سؤال الحقيقية بنجاح دون أي تكرار أو اختصار!")
-    print(f"إجمالي أسئلة المستوى الأول: {len(questions_database['level_1'])}")
-    print(f"إجمالي أسئلة المستوى الثاني: {len(questions_database['level_2'])}")
-    print(f"إجمالي أسئلة المستوى الثالث: {len(questions_database['level_3'])}")
-
-
-# ==========================================
-# دالة اختبار وتنفيذ بنك الأسئلة بالكامل
-# ==========================================
-def run_full_quiz():
-    print(f"تم تحميل بنك الأسئلة بنجاح! الإجمالي: {len(questions_db)} سؤالاً حقيقياً ومتنوعاً (50 لكل مستوى).\n")
-    
-    # عداد الأسئلة لكل مستوى للتأكد
-    levels = {"مبتدئ": 0, "متوسط": 0, "محترف": 0}
-    for q in questions_db:
-        levels[q['level']] += 1
-    
-    print(f"توزيع الأسئلة الدقيق:")
-    for lvl, count in levels.items():
-        print(f"- مستوى ({lvl}): {count} سؤالاً")
-
-if __name__ == "__main__":
-    run_full_quiz()
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     level = request.form.get('level', 'متوسط')
     num_questions = int(request.form.get('num_questions', 5))
     action = request.form.get('action', 'select')
    
-    pool = [q for q in questions_db if q.get('level') == level]
-    if not pool:
-        pool = [q for q in questions_db if q.get('level') == "متوسط"]
+    pool = QUESTIONS_DB.get(level, QUESTIONS_DB.get("متوسط", []))
    
     if request.method == 'GET' or action == 'select':
         return render_template_string(MAIN_TEMPLATE, level=level, num_questions=num_questions)
@@ -374,10 +346,10 @@ def quiz_step():
         
         user_answers = session.get('user_answers', {})
         user_answers[str(current_index)] = {
-            "question": questions[current_index]['question'],
+            "prompt": questions[current_index]['prompt'],
             "user_ans": ans if ans else "لم تتم الإجابة",
-            "correct_ans": questions[current_index]['answer'],
-            "is_correct": (ans == questions[current_index]['answer'])
+            "correct_ans": questions[current_index]['correct_answer'],
+            "is_correct": (ans == questions[current_index]['correct_answer'])
         }
         session['user_answers'] = user_answers
        
@@ -412,7 +384,7 @@ def results():
             score += 1
         results_list.append({
             "id": int(idx) + 1,
-          "question": data.get('question', data.get('prompt', 'سؤال بدون متن')),
+            "prompt": data['prompt'],
             "user_ans": data['user_ans'],
             "correct_ans": data['correct_ans'],
             "is_correct": data['is_correct']
@@ -527,22 +499,21 @@ QUIZ_TEMPLATE = """
     <div class="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
             <span style="font-size: 14px; color: #555;">المستوى: <strong style="color: #114b3e;">{{ level }}</strong></span>
-            <p dir="auto"><strong>السؤال {{ current_num }}:</strong> <span dir="auto">{{ question.question }}</span></p>
+            <span style="font-size: 14px; color: #555;">السؤال: <strong style="color: #114b3e;">{{ current_num }} من {{ total_questions }}</strong></span>
         </div>
 
-        <h2>اختبار الدرس الأول مادة الرياضيات البحتة</h2>
+        <h2>اختبار الدرس الأول مادة الرياضيات التطبيقية 2 ثانوي ازهر </h2>
        
         <form method="POST" action="{{ url_for('quiz_step') }}" id="quiz-form">
             <div class="question-box">
                 <span class="badge-type">اختيار من متعدد</span>
-             <p dir="auto"><strong>السؤال {{ current_num }}:</strong> <span dir="auto">{{ question.question }}</span></p>
+                <p><strong>سؤال {{ current_num }}:</strong> {{ question.prompt }}</p>
                
                 <div class="options-list">
                     {% for opt in question.options %}
-<label class="option-item" dir="auto">
-    <input type="radio" name="current_answer" value="{{ opt }}" required> 
-    <span dir="auto">{{ opt }}</span>
-</label>
+                        <label class="option-item">
+                            <input type="radio" name="current_answer" value="{{ opt }}" required> {{ opt }}
+                        </label>
                     {% endfor %}
                 </div>
                 <div class="hint">💡 <em>{{ question.hint }}</em></div>
@@ -607,6 +578,9 @@ RESULT_TEMPLATE = """
 </body>
 </html>
 """
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
