@@ -385,30 +385,29 @@ def quiz_step():
 def results():
     user_answers = session.get('user_answers', {})
     level = session.get('level', 'متوسط')
-   
+    
     score = 0
     total = len(user_answers)
     results_list = []
-   
+    
     for idx, data in sorted(user_answers.items(), key=lambda x: int(x[0])):
-        if data.get ('is_correct', False):
+        if data.get('is_correct', False):
             score += 1
         results_list.append({
             "id": int(idx) + 1,
-            "question": data['question'],
-            "user_ans": data['user_ans'],
-            "correct_ans": data['correct_ans'],
-            "is_correct": data.get('is_correct' , False):
+            "question": data.get('question', ''),
+            "user_ans": data.get('user_ans', ''),
+            "correct_ans": data.get('correct_ans', ''),
+            "is_correct": data.get('is_correct', False)
         })
-       
+        
     return render_template_string(
         RESULT_TEMPLATE,
         level=level,
         score=score,
         total=total,
-        results=results_list
+        results_list=results_list
     )
-
 MAIN_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
