@@ -2140,6 +2140,8 @@ def quiz_step():
     if questions and current_index < len(questions):
         question = questions[current_index]
         if question.get('id', 0) % 2 == 0:
+            question = questions[current_index]
+correct_ans = question.get('answer')  # أضف هذا السطر هنا
             question['options'] = ["خطأ", "صح"]
         else:
             import random
