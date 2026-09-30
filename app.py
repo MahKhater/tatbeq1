@@ -2131,35 +2131,22 @@ def index():
         session['current_index'] = 0
         session['user_answers'] = {}
         return redirect(url_for('quiz_step'))
+
 @app.route('/quiz', methods=['GET', 'POST'])
 def quiz_step():
     questions = session.get('questions', [])
     current_index = session.get('current_index', 0)
     level = session.get('level', 'متوسط')
-    # --- أضف الكود هنا ---
-    if questions and current_index < len(questions):
-        question = questions[current_index]
-        if question.get('id', 0) % 2 == 0:
-            question = questions[current_index]
-correct_ans = question.get('answer')  # أضف هذا السطر هنا
-            question['options'] = ["خطأ", "صح"]
-        else:
-            import random
-            dummy_pool = ["صفر", "١", "٢", "٦", "١٢", "١٨", "٩٠ ْ", "١٨٠ ْ", "غير ذلك"]
-            opts = [correct_ans]
-            for item in dummy_pool:
-                if item != correct_ans and len(opts) < 4:
-                    opts.append(item)
-            while len(opts) < 4:
-                opts.append("خيار إضافي")
-            random.shuffle(opts)
-            question['options'] = opts
+   
+    if not questions:
+        return redirect(url_for('index'))
+       
     if request.method == 'POST':
         ans = request.form.get('current_answer')
         
         user_answers = session.get('user_answers', {})
         user_answers[str(current_index)] = {
-            "question": questions[current_index]['question'],
+            "prompt": questions[current_index]['prompt'],
             "user_ans": ans if ans else "لم تتم الإجابة",
             "correct_ans": questions[current_index]['answer'],
             "is_correct": (ans == questions[current_index]['answer'])
@@ -2178,7 +2165,7 @@ correct_ans = question.get('answer')  # أضف هذا السطر هنا
         QUIZ_TEMPLATE,
         level=level,
         question=current_question,
-       current_num=current_index + 1,
+        current_num=current_index + 1,
         total_questions=len(questions),
         num_questions=len(questions)
     )
@@ -2187,29 +2174,30 @@ correct_ans = question.get('answer')  # أضف هذا السطر هنا
 def results():
     user_answers = session.get('user_answers', {})
     level = session.get('level', 'متوسط')
-    
+   
     score = 0
     total = len(user_answers)
     results_list = []
-    
+   
     for idx, data in sorted(user_answers.items(), key=lambda x: int(x[0])):
-        if data.get('is_correct', False):
+        if data['is_correct']:
             score += 1
         results_list.append({
             "id": int(idx) + 1,
-            "question": data.get('question', ''),
-            "user_ans": data.get('user_ans', ''),
-            "correct_ans": data.get('correct_ans', ''),
-            "is_correct": data.get('is_correct', False)
+            "prompt": data['prompt'],
+            "user_ans": data['user_ans'],
+            "correct_ans": data['correct_ans'],
+            "is_correct": data['is_correct']
         })
-        
+       
     return render_template_string(
         RESULT_TEMPLATE,
         level=level,
         score=score,
         total=total,
-        results_list=results_list
+        results=results_list
     )
+
 MAIN_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -2314,12 +2302,12 @@ QUIZ_TEMPLATE = """
             <span style="font-size: 14px; color: #555;">السؤال: <strong style="color: #114b3e;">{{ current_num }} من {{ total_questions }}</strong></span>
         </div>
 
-        <h2>اختبار الدرس الأول مادة الرياضيات التطبيقية 2 ثانوي أزهر</h2>
+        <h2>اختبار الدرس الأول الشامل</h2>
        
         <form method="POST" action="{{ url_for('quiz_step') }}" id="quiz-form">
             <div class="question-box">
                 <span class="badge-type">اختيار من متعدد</span>
-                <p><strong>سؤال {{ current_num }}:</strong> {{ question.question }}</p>
+                <p><strong>سؤال {{ current_num }}:</strong> {{ question.prompt }}</p>
                
                 <div class="options-list">
                     {% for opt in question.options %}
@@ -2374,7 +2362,7 @@ RESULT_TEMPLATE = """
         <div style="margin-top: 15px;">
             {% for r in results %}
                 <div class="res-item {% if r.is_correct %}correct{% else %}wrong{% endif %}">
-                    <p><strong>سؤال {{ r.id }}:</strong> {{ r.question }}</p>
+                    <p><strong>سؤال {{ r.id }}:</strong> {{ r.prompt }}</p>
                     <p style="margin: 5px 0; font-size: 14px;">إجابتك: <span style="font-weight: bold; color: {% if r.is_correct %}#2e7d32{% else %}#c62828{% endif %};">{{ r.user_ans }} {% if r.is_correct %}✅{% else %}❌{% endif %}</span></p>
                     {% if not r.is_correct %}
                         <p style="margin: 5px 0; font-size: 14px; color: #2e7d32;">الإجابة الصحيحة هي: <strong>{{ r.correct_ans }}</strong></p>
